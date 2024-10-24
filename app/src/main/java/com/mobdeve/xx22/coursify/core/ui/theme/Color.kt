@@ -32,4 +32,3 @@ val Scrim = Primary.copy(alpha = 0.32f)   // For background dimming
 val Success = AccentOne
 val Error = AccentTwo.copy(red = 0.95f)   // Slightly adjusted for error states
 val OnError = Color.White
-
