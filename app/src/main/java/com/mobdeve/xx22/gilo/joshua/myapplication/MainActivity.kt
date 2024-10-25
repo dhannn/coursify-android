@@ -4,13 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -18,15 +16,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.mobdeve.xx22.gilo.joshua.myapplication.login.LoginScreen
+import com.mobdeve.xx22.gilo.joshua.myapplication.signup.SignupScreen
 import com.mobdeve.xx22.gilo.joshua.myapplication.onboarding.OnboardingScreen
 import com.mobdeve.xx22.gilo.joshua.myapplication.onboarding.OnboardingUtils
+import com.mobdeve.xx22.gilo.joshua.myapplication.savedplans.MyPlansScreen
 import com.mobdeve.xx22.gilo.joshua.myapplication.ui.theme.MyApplicationTheme
 
-// Define sealed class for type-safe navigation
 sealed class Screen(val route: String) {
     object Onboarding : Screen("onboarding")
     object Login : Screen("login")
+    object Signup : Screen("signup")
     object Home : Screen("home")
+    object Plan : Screen("plan")
 }
 
 class MainActivity : ComponentActivity() {
@@ -83,12 +84,33 @@ fun AppNavigation(
             }
 
             composable(Screen.Login.route) {
-                LoginScreen { email, password ->
-                    navController.navigate(Screen.Home.route) {
-                        popUpTo(Screen.Login.route) { inclusive = true }
+                LoginScreen(
+                    onLoginClick = { email, password ->
+                        // Navigate to Plan screen after login
+                        navController.navigate(Screen.Plan.route) {
+                            popUpTo(Screen.Login.route) { inclusive = true }
+                        }
+                    },
+                    onCreateAccountClick = {
+                        navController.navigate(Screen.Signup.route)
                     }
-                }
+                )
             }
+
+            composable(Screen.Signup.route) {
+                SignupScreen(
+                    onSignupComplete = { email, password ->
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(Screen.Login.route) { inclusive = true }
+                        }
+                    }
+                )
+            }
+
+            composable(Screen.Plan.route) {
+                MyPlansScreen()
+            }
+
             composable(Screen.Home.route) {
                 HomeScreen()
             }
@@ -98,4 +120,5 @@ fun AppNavigation(
 
 @Composable
 fun HomeScreen() {
+    // Your home screen implementation
 }

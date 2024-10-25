@@ -1,6 +1,5 @@
-package com.mobdeve.xx22.gilo.joshua.myapplication.login
+package com.mobdeve.xx22.gilo.joshua.myapplication.signup
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -11,25 +10,21 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.runtime.Composable
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextDecoration
 import com.mobdeve.xx22.gilo.joshua.myapplication.R
 
 
 @Composable
-fun LoginScreen(
-    onLoginClick: (String, String) -> Unit,
-    onCreateAccountClick: () -> Unit
+fun SignupScreen(
+    onSignupComplete: (String, String) -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -42,8 +37,12 @@ fun LoginScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Image(painterResource(R.drawable.logo), contentDescription = "logo")
-        Text(text = "Login", style = MaterialTheme.typography.headlineLarge)
+        Image(
+            painterResource(R.drawable.logo),
+            contentDescription = "logo",
+            modifier = Modifier.size(217.dp)
+        )
+        Text(text = "Create an Account", style = MaterialTheme.typography.headlineLarge)
         Spacer(modifier = Modifier.height(16.dp))
 
         // Email field
@@ -57,7 +56,7 @@ fun LoginScreen(
                 .scale(scaleY = 0.9F, scaleX = 1F),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             shape = RoundedCornerShape(13.dp),
-            leadingIcon = { Icon(Icons.Filled.Person, contentDescription = "E-mail") }
+            leadingIcon = { Icon(Icons.Filled.Person, contentDescription = "E-mail") },
         )
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -87,24 +86,12 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Create Account Link
-        Text(
-            text = "Create an Account",
-            color = MaterialTheme.colorScheme.primary,
-            style = MaterialTheme.typography.bodyLarge.copy(
-                textDecoration = TextDecoration.Underline
-            ),
-            modifier = Modifier.clickable(onClick = onCreateAccountClick)
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
         Button(
-            onClick = { onLoginClick(email, password) },
+            onClick = { onSignupComplete(email, password) },
             modifier = Modifier.width(304.dp).height(43.3.dp),
             shape = RoundedCornerShape(13.dp)
         ) {
-            Text("Login")
+            Text("Create Account")
         }
     }
 }
