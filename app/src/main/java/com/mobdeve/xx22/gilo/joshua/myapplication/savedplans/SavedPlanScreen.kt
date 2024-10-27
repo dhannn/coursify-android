@@ -14,52 +14,57 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.ui.text.font.FontWeight
 
 @Composable
 fun MyPlansScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background) // Use theme background color
+            .background(MaterialTheme.colorScheme.background)
+            .padding(top = 50.dp,)
     ) {
-        // Top row with "My Plans" and user icon
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(start = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 text = "My Plans",
-                style = MaterialTheme.typography.headlineMedium // Use MaterialTheme typography
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(start = 16.dp)
             )
-            IconButton(onClick = { /* TODO: Handle profile click */ }) {
+            IconButton(
+                onClick = { /* TODO: Handle profile click */ },
+                modifier = Modifier.padding(end = 25.dp)
+            ) {
                 Box(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape)
-                        .background(Color.LightGray), // Circle background for user icon
-                    contentAlignment = Alignment.Center // Align the icon to the center
+                        .background(Color.LightGray),
+                    contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         Icons.Filled.Person,
                         contentDescription = "Person",
-                        tint = MaterialTheme.colorScheme.onBackground // Use theme color for the icon
+                        tint = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.size(24.dp)
                     )
                 }
             }
         }
 
-        // Centered content for the Elevated Card with plan
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 80.dp), // Adjust top padding for centered card
+                .padding(top = 70.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            // Elevated card for MOBDEVE plan
             ElevatedCard(
                 elevation = CardDefaults.cardElevation(
                     defaultElevation = 6.dp

@@ -120,5 +120,4 @@ fun AppNavigation(
 
 @Composable
 fun HomeScreen() {
-    // Your home screen implementation
 }

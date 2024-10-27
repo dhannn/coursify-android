@@ -23,6 +23,7 @@ fun CourseDetailScreen() {
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
+            .padding(30.dp)
     ) {
         // Top Bar
         TopAppBar(

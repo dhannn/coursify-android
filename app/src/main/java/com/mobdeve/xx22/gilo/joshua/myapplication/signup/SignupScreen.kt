@@ -17,9 +17,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import com.mobdeve.xx22.gilo.joshua.myapplication.R
+import com.mobdeve.xx22.gilo.joshua.myapplication.ui.theme.Smoke
 
 
 @Composable
@@ -28,7 +32,7 @@ fun SignupScreen(
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) } // State to toggle password visibility
+    var passwordVisible by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -42,11 +46,15 @@ fun SignupScreen(
             contentDescription = "logo",
             modifier = Modifier.size(217.dp)
         )
-        Text(text = "Create an Account", style = MaterialTheme.typography.headlineLarge)
-        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Create an Account",
+            style = MaterialTheme.typography.headlineLarge,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(16.dp))  // Changed from 20.dp to 16.dp to match login
 
         // Email field
-        OutlinedTextField(
+        TextField(
             value = email,
             onValueChange = { email = it },
             label = { Text("Email") },
@@ -57,12 +65,21 @@ fun SignupScreen(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             shape = RoundedCornerShape(13.dp),
             leadingIcon = { Icon(Icons.Filled.Person, contentDescription = "E-mail") },
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Smoke,
+                unfocusedContainerColor = Smoke,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                cursorColor = Color.Black,
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black
+            )
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(20.dp))  // Already matches login
 
         // Password field
-        OutlinedTextField(
+        TextField(
             value = password,
             onValueChange = { password = it },
             label = { Text("Password") },
@@ -81,17 +98,39 @@ fun SignupScreen(
                         contentDescription = if (passwordVisible) "Hide password" else "Show password"
                     )
                 }
-            }
+            },
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Smoke,
+                unfocusedContainerColor = Smoke,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+                cursorColor = Color.Black,
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black
+            )
         )
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(20.dp))  // Already matches login
 
         Button(
             onClick = { onSignupComplete(email, password) },
-            modifier = Modifier.width(304.dp).height(43.3.dp),
-            shape = RoundedCornerShape(13.dp)
+            modifier = Modifier
+                .width(304.dp)
+                .height(43.3.dp),
+            shape = RoundedCornerShape(13.dp),
+            colors = ButtonDefaults.buttonColors(Color.Black)
         ) {
             Text("Create Account")
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SignupScreenPreview() {
+    MaterialTheme {
+        SignupScreen(
+            onSignupComplete = { _, _ -> /* Do nothing for preview */ }
+        )
     }
 }

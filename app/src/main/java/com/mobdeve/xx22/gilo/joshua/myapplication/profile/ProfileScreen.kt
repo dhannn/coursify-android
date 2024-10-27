@@ -24,7 +24,7 @@ fun ProfileScreen() {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-        Spacer(modifier = Modifier.height(48.dp))
+        Spacer(modifier = Modifier.height(150.dp))
 
         // Profile Avatar
         Box(
@@ -51,7 +51,7 @@ fun ProfileScreen() {
             color = Color.Black
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(50.dp))
 
         // Delete Account Button
         Button(

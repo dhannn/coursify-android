@@ -89,15 +89,20 @@ fun TrackingScreen() {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(start = 16.dp, top = 50.dp, end = 10.dp), // Add padding similar to MyPlansScreen
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "My Plans",
-                style = MaterialTheme.typography.headlineMedium
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold, // Bold text like in MyPlansScreen
+                modifier = Modifier.padding(start = 16.dp)
             )
-            IconButton(onClick = { /* TODO: Handle profile click */ }) {
+            IconButton(
+                onClick = { /* TODO: Handle profile click */ },
+                modifier = Modifier.padding(end = 25.dp) // Adjust padding like in MyPlansScreen
+            ) {
                 Box(
                     modifier = Modifier
                         .size(40.dp)
@@ -108,14 +113,18 @@ fun TrackingScreen() {
                     Icon(
                         Icons.Filled.Person,
                         contentDescription = "Person",
-                        tint = MaterialTheme.colorScheme.onBackground
+                        tint = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.size(24.dp) // Adjust icon size like in MyPlansScreen
                     )
                 }
             }
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
+
         // Content section
         Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 16.dp)
@@ -123,8 +132,7 @@ fun TrackingScreen() {
             // Dropdown for selecting lesson plan
             ExposedDropdownMenuBox(
                 expanded = isDropdownExpanded,
-                onExpandedChange = { isDropdownExpanded = it },
-                modifier = Modifier.fillMaxWidth()
+                onExpandedChange = { isDropdownExpanded = it }
             ) {
                 OutlinedTextField(
                     value = selectedLessonPlan?.title ?: "",
@@ -134,7 +142,7 @@ fun TrackingScreen() {
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = isDropdownExpanded)
                     },
                     modifier = Modifier
-                        .fillMaxWidth()
+                        .fillMaxWidth(0.9f)
                         .menuAnchor(),
                     colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
                 )
@@ -187,7 +195,10 @@ fun ModuleSection(module: Module) {
         )
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth()
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp)
         ) {
             // Module Header
             Row(

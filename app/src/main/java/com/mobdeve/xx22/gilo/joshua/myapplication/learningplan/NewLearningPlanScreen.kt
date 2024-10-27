@@ -27,7 +27,7 @@ fun NewLearningPlanScreen() {
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFF8F9FA))
-            .padding(24.dp),
+            .padding(30.dp),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
