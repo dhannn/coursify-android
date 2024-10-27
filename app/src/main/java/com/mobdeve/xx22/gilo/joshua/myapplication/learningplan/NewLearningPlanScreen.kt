@@ -17,7 +17,10 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewLearningPlanScreen() {
+fun NewLearningPlanScreen(
+    onCoursify: () -> Unit,
+    onCancel: () -> Unit
+) {
     var learningGoal by remember { mutableStateOf("") }
     var weeklyCommitment by remember { mutableStateOf(0f) }
     var courseDuration by remember { mutableStateOf(0f) }
@@ -131,7 +134,7 @@ fun NewLearningPlanScreen() {
             modifier = Modifier.padding(bottom = 24.dp)
         ) {
             Button(
-                onClick = { /* TODO: Handle coursify action */ },
+                onClick = onCoursify,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
@@ -146,7 +149,7 @@ fun NewLearningPlanScreen() {
             Spacer(modifier = Modifier.height(12.dp))
 
             Button(
-                onClick = { /* TODO: Handle cancel action */ },
+                onClick = onCancel,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
@@ -168,6 +171,9 @@ fun NewLearningPlanScreen() {
 @Composable
 fun PreviewNewLearningPlanScreen() {
     MaterialTheme {
-        NewLearningPlanScreen()
+        NewLearningPlanScreen(
+            onCoursify = {},
+            onCancel = {}
+        )
     }
 }

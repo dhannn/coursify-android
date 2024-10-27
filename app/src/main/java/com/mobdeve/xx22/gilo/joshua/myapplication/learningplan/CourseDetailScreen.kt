@@ -18,7 +18,9 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CourseDetailScreen() {
+fun CourseDetailScreen(
+    onBackClick: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -29,7 +31,7 @@ fun CourseDetailScreen() {
         TopAppBar(
             title = { },
             navigationIcon = {
-                IconButton(onClick = { /* TODO: Handle navigation */ }) {
+                IconButton(onClick = onBackClick) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = "Back",
@@ -177,6 +179,6 @@ fun CourseDetailScreen() {
 @Composable
 fun PreviewCourseDetailScreen() {
     MaterialTheme {
-        CourseDetailScreen()
+        CourseDetailScreen{}
     }
 }

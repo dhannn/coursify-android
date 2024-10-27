@@ -8,18 +8,18 @@ import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.tooling.preview.Preview
 
 data class LessonPlan(
     val title: String,
@@ -38,8 +38,10 @@ data class TaskItem(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TrackingScreen() {
-    // Sample data
+fun TrackingScreen(
+    modifier: Modifier = Modifier,
+    onProfileClick: () -> Unit
+) {
     val lessonPlans = listOf(
         LessonPlan(
             "Learn Android Development",
@@ -81,28 +83,22 @@ fun TrackingScreen() {
     var isDropdownExpanded by remember { mutableStateOf(false) }
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(Color(0xFFF8F9FA))
     ) {
-        // Header section
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 16.dp, top = 50.dp, end = 10.dp), // Add padding similar to MyPlansScreen
+                .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "My Plans",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold, // Bold text like in MyPlansScreen
-                modifier = Modifier.padding(start = 16.dp)
+                text = "Track Learning",
+                style = MaterialTheme.typography.headlineMedium
             )
-            IconButton(
-                onClick = { /* TODO: Handle profile click */ },
-                modifier = Modifier.padding(end = 25.dp) // Adjust padding like in MyPlansScreen
-            ) {
+            IconButton(onClick = onProfileClick) {
                 Box(
                     modifier = Modifier
                         .size(40.dp)
@@ -112,27 +108,22 @@ fun TrackingScreen() {
                 ) {
                     Icon(
                         Icons.Filled.Person,
-                        contentDescription = "Person",
-                        tint = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.size(24.dp) // Adjust icon size like in MyPlansScreen
+                        contentDescription = "Profile",
+                        tint = Color.DarkGray
                     )
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Content section
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 16.dp)
         ) {
-            // Dropdown for selecting lesson plan
             ExposedDropdownMenuBox(
                 expanded = isDropdownExpanded,
-                onExpandedChange = { isDropdownExpanded = it }
+                onExpandedChange = { isDropdownExpanded = it },
+                modifier = Modifier.fillMaxWidth()
             ) {
                 OutlinedTextField(
                     value = selectedLessonPlan?.title ?: "",
@@ -142,9 +133,12 @@ fun TrackingScreen() {
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = isDropdownExpanded)
                     },
                     modifier = Modifier
-                        .fillMaxWidth(0.9f)
+                        .fillMaxWidth()
                         .menuAnchor(),
-                    colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors()
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedBorderColor = Color.LightGray,
+                        focusedBorderColor = Color.Black
+                    )
                 )
 
                 ExposedDropdownMenu(
@@ -191,14 +185,14 @@ fun ModuleSection(module: Module) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = Color.White
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 2.dp
         )
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp)
+            modifier = Modifier.fillMaxWidth()
         ) {
             // Module Header
             Row(
@@ -227,6 +221,7 @@ fun ModuleSection(module: Module) {
                 module.tasks.forEach { task ->
                     TaskRow(task)
                 }
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }
@@ -244,7 +239,7 @@ fun TaskRow(task: TaskItem) {
         Icon(
             imageVector = Icons.Default.CheckCircle,
             contentDescription = if (task.isCompleted) "Completed" else "Not completed",
-            tint = if (task.isCompleted) MaterialTheme.colorScheme.primary else Color.Gray,
+            tint = if (task.isCompleted) Color.Black else Color.LightGray,
             modifier = Modifier.size(20.dp)
         )
         Text(
@@ -258,8 +253,10 @@ fun TaskRow(task: TaskItem) {
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewLessonPlansScreen() {
+fun PreviewTrackingScreen() {
     MaterialTheme {
-        TrackingScreen()
+        TrackingScreen(
+            onProfileClick = {}
+        )
     }
 }

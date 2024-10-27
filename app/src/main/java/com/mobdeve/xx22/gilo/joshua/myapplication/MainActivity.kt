@@ -15,19 +15,31 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.mobdeve.xx22.gilo.joshua.myapplication.components.MainScaffold
+import com.mobdeve.xx22.gilo.joshua.myapplication.learningplan.CourseDetailScreen
+import com.mobdeve.xx22.gilo.joshua.myapplication.learningplan.GeneratingScreen
+import com.mobdeve.xx22.gilo.joshua.myapplication.learningplan.NewLearningPlanScreen
 import com.mobdeve.xx22.gilo.joshua.myapplication.login.LoginScreen
 import com.mobdeve.xx22.gilo.joshua.myapplication.signup.SignupScreen
 import com.mobdeve.xx22.gilo.joshua.myapplication.onboarding.OnboardingScreen
 import com.mobdeve.xx22.gilo.joshua.myapplication.onboarding.OnboardingUtils
+import com.mobdeve.xx22.gilo.joshua.myapplication.profile.ProfileScreen
 import com.mobdeve.xx22.gilo.joshua.myapplication.savedplans.MyPlansScreen
+import com.mobdeve.xx22.gilo.joshua.myapplication.tracking.TrackingScreen
 import com.mobdeve.xx22.gilo.joshua.myapplication.ui.theme.MyApplicationTheme
+import com.mobdeve.xx22.gilo.joshua.myapplication.utils.navigateToBottomBarRoute
 
 sealed class Screen(val route: String) {
     object Onboarding : Screen("onboarding")
     object Login : Screen("login")
     object Signup : Screen("signup")
     object Home : Screen("home")
-    object Plan : Screen("plan")
+    object SavedPlans : Screen("saved_plans")
+    object Tracking : Screen("tracking")
+    object Profile : Screen("profile")
+    object NewLearningPlan : Screen("new_learning_plan")
+    object Generating : Screen("generating")
+    object CourseDetail : Screen("course_detail")
 }
 
 class MainActivity : ComponentActivity() {
@@ -35,8 +47,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-
         setContent {
             MyApplicationTheme {
                 Surface(
@@ -68,11 +78,11 @@ fun AppNavigation(
     startDestination: String,
     onboardingUtils: OnboardingUtils
 ) {
-    Scaffold { paddingValues ->
+    MainScaffold(navController = navController) { paddingModifier ->
         NavHost(
             navController = navController,
             startDestination = startDestination,
-            modifier = Modifier.padding(paddingValues)
+            modifier = paddingModifier
         ) {
             composable(Screen.Onboarding.route) {
                 OnboardingScreen {
@@ -86,8 +96,7 @@ fun AppNavigation(
             composable(Screen.Login.route) {
                 LoginScreen(
                     onLoginClick = { email, password ->
-                        // Navigate to Plan screen after login
-                        navController.navigate(Screen.Plan.route) {
+                        navController.navigate(Screen.Home.route) {
                             popUpTo(Screen.Login.route) { inclusive = true }
                         }
                     },
@@ -100,24 +109,66 @@ fun AppNavigation(
             composable(Screen.Signup.route) {
                 SignupScreen(
                     onSignupComplete = { email, password ->
+                        navController.navigate(Screen.Login.route)
+                    }
+                )
+            }
+
+            composable(Screen.Home.route) {
+                MyPlansScreen(
+                    modifier = paddingModifier,
+                    onProfileClick = {
+                        navController.navigateToBottomBarRoute(Screen.Profile.route)
+                    },
+                    onCourseClick = {
+                        navController.navigate(Screen.CourseDetail.route)
+                    }
+                )
+            }
+
+            composable(Screen.Tracking.route) {
+                TrackingScreen(
+                    modifier = paddingModifier,
+                    onProfileClick = {
+                        navController.navigateToBottomBarRoute(Screen.Profile.route)
+                    }
+                )
+            }
+
+            composable(Screen.Profile.route) {
+                ProfileScreen(
+                    modifier = paddingModifier,
+                    onLogout = {
                         navController.navigate(Screen.Login.route) {
-                            popUpTo(Screen.Login.route) { inclusive = true }
+                            popUpTo(Screen.Home.route) { inclusive = true }
                         }
                     }
                 )
             }
 
-            composable(Screen.Plan.route) {
-                MyPlansScreen()
+            // Other screens without bottom bar
+            composable(Screen.NewLearningPlan.route) {
+                NewLearningPlanScreen(
+                    onCoursify = {
+                        navController.navigate(Screen.Generating.route)
+                    },
+                    onCancel = {
+                        navController.popBackStack()
+                    }
+                )
             }
 
-            composable(Screen.Home.route) {
-                HomeScreen()
+            composable(Screen.Generating.route) {
+                GeneratingScreen(navController = navController)
+            }
+
+            composable(Screen.CourseDetail.route) {
+                CourseDetailScreen(
+                    onBackClick = {
+                        navController.popBackStack()
+                    }
+                )
             }
         }
     }
-}
-
-@Composable
-fun HomeScreen() {
 }

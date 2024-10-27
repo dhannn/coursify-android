@@ -16,9 +16,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(
+    modifier: Modifier = Modifier,
+    onLogout: () -> Unit
+) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(Color(0xFFF8F9FA)),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -26,7 +29,6 @@ fun ProfileScreen() {
     ) {
         Spacer(modifier = Modifier.height(150.dp))
 
-        // Profile Avatar
         Box(
             modifier = Modifier
                 .size(120.dp)
@@ -44,7 +46,6 @@ fun ProfileScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // User Name
         Text(
             text = "Name",
             style = MaterialTheme.typography.headlineSmall,
@@ -53,7 +54,6 @@ fun ProfileScreen() {
 
         Spacer(modifier = Modifier.height(50.dp))
 
-        // Delete Account Button
         Button(
             onClick = { /* TODO: Handle delete account */ },
             modifier = Modifier
@@ -74,9 +74,8 @@ fun ProfileScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Logout Button
         Button(
-            onClick = { /* TODO: Handle logout */ },
+            onClick = onLogout,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 32.dp)
@@ -99,6 +98,6 @@ fun ProfileScreen() {
 @Composable
 fun PreviewProfileScreen() {
     MaterialTheme {
-        ProfileScreen()
+        ProfileScreen{}
     }
 }
