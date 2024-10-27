@@ -21,7 +21,8 @@ import com.mobdeve.xx22.gilo.joshua.myapplication.signup.SignupScreen
 import com.mobdeve.xx22.gilo.joshua.myapplication.onboarding.OnboardingScreen
 import com.mobdeve.xx22.gilo.joshua.myapplication.onboarding.OnboardingUtils
 import com.mobdeve.xx22.gilo.joshua.myapplication.profile.ProfileScreen
-import com.mobdeve.xx22.gilo.joshua.myapplication.savedplans.MyPlansScreen
+import com.mobdeve.xx22.gilo.joshua.myapplication.home.HomeScreen
+import com.mobdeve.xx22.gilo.joshua.myapplication.home.SavedPlansScreen
 import com.mobdeve.xx22.gilo.joshua.myapplication.tracking.TrackingScreen
 import com.mobdeve.xx22.gilo.joshua.myapplication.ui.theme.MyApplicationTheme
 import com.mobdeve.xx22.gilo.joshua.myapplication.utils.navigateToBottomBarRoute
@@ -112,7 +113,19 @@ fun AppNavigation(
             }
 
             composable(Screen.Home.route) {
-                MyPlansScreen(
+                HomeScreen(
+                    modifier = paddingModifier,
+                    onProfileClick = {
+                        navController.navigateToBottomBarRoute(Screen.Profile.route)
+                    },
+                    onCourseClick = {
+                        navController.navigate(Screen.CourseDetail.route)
+                    }
+                )
+            }
+
+            composable(Screen.SavedPlans.route) {
+                SavedPlansScreen(
                     modifier = paddingModifier,
                     onProfileClick = {
                         navController.navigateToBottomBarRoute(Screen.Profile.route)

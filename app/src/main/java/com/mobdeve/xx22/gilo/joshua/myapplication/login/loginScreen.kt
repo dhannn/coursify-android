@@ -1,4 +1,5 @@
 package com.mobdeve.xx22.gilo.joshua.myapplication.login
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,8 +17,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.runtime.Composable
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.ui.draw.scale
@@ -28,11 +27,10 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.sp
 import com.mobdeve.xx22.gilo.joshua.myapplication.R
-import com.mobdeve.xx22.gilo.joshua.myapplication.learningplan.GeneratingScreen
-import com.mobdeve.xx22.gilo.joshua.myapplication.ui.theme.Black
-import com.mobdeve.xx22.gilo.joshua.myapplication.ui.theme.Smoke
-import com.mobdeve.xx22.gilo.joshua.myapplication.ui.theme.WhiteSmoke
-
+import com.mobdeve.xx22.gilo.joshua.myapplication.ui.theme.PrimaryColor
+import com.mobdeve.xx22.gilo.joshua.myapplication.ui.theme.SecondaryColor
+import com.mobdeve.xx22.gilo.joshua.myapplication.ui.theme.BackgroundColor
+import com.mobdeve.xx22.gilo.joshua.myapplication.ui.theme.AccentColor1
 
 @Composable
 fun LoginScreen(
@@ -46,7 +44,7 @@ fun LoginScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(WhiteSmoke)
+            .background(BackgroundColor)
     ) {
         Column(
             modifier = Modifier
@@ -70,7 +68,6 @@ fun LoginScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Modified Email field with no outline
             TextField(
                 value = email,
                 onValueChange = { email = it },
@@ -83,19 +80,18 @@ fun LoginScreen(
                 shape = RoundedCornerShape(13.dp),
                 leadingIcon = { Icon(Icons.Filled.Person, contentDescription = "E-mail") },
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Smoke,
-                    unfocusedContainerColor = Smoke,
-                    focusedIndicatorColor = Color.Transparent,  // Makes the bottom line transparent when focused
-                    unfocusedIndicatorColor = Color.Transparent,  // Makes the bottom line transparent when unfocused
-                    cursorColor = Color.Black,
-                    focusedTextColor = Black,
-                    unfocusedTextColor = Black
+                    focusedContainerColor = SecondaryColor,
+                    unfocusedContainerColor = SecondaryColor,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    cursorColor = PrimaryColor,
+                    focusedTextColor = PrimaryColor,
+                    unfocusedTextColor = PrimaryColor
                 )
             )
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Modified Password field with no outline
             TextField(
                 value = password,
                 onValueChange = { password = it },
@@ -117,13 +113,13 @@ fun LoginScreen(
                     }
                 },
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Smoke,
-                    unfocusedContainerColor = Smoke,
-                    focusedIndicatorColor = Color.Transparent,  // Makes the bottom line transparent when focused
-                    unfocusedIndicatorColor = Color.Transparent,  // Makes the bottom line transparent when unfocused
-                    cursorColor = Color.Black,
-                    focusedTextColor = Black,
-                    unfocusedTextColor = Black
+                    focusedContainerColor = SecondaryColor,
+                    unfocusedContainerColor = SecondaryColor,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent,
+                    cursorColor = PrimaryColor,
+                    focusedTextColor = PrimaryColor,
+                    unfocusedTextColor = PrimaryColor
                 )
             )
 
@@ -131,7 +127,7 @@ fun LoginScreen(
 
             Text(
                 text = "Create an Account",
-                color = MaterialTheme.colorScheme.primary,
+                color = AccentColor1,
                 style = MaterialTheme.typography.bodyLarge.copy(
                     textDecoration = TextDecoration.Underline
                 ),
@@ -146,22 +142,21 @@ fun LoginScreen(
                     .width(304.dp)
                     .height(43.3.dp),
                 shape = RoundedCornerShape(13.dp),
-                colors = ButtonDefaults.buttonColors(Color.Black)
+                colors = ButtonDefaults.buttonColors(PrimaryColor)
             ) {
-                Text("Login")
+                Text("Login", color = Color.White)
             }
         }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
     MaterialTheme {
         LoginScreen(
-            onLoginClick = { _, _ -> /* Do nothing for preview */ },
-            onCreateAccountClick = { /* Do nothing for preview */ }
+            onLoginClick = { _, _ ->},
+            onCreateAccountClick = { }
         )
     }
 }

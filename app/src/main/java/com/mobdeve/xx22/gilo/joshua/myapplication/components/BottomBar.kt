@@ -16,6 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.mobdeve.xx22.gilo.joshua.myapplication.ui.theme.PrimaryColor
+import com.mobdeve.xx22.gilo.joshua.myapplication.ui.theme.BackgroundColor
 
 @Composable
 fun BottomBar(
@@ -23,7 +25,7 @@ fun BottomBar(
     onItemSelected: (Int) -> Unit,
     onFabClick: () -> Unit,
     barHeight: Dp = 60.dp,
-    fabColor: Color = Color(0xFF7980FF),
+    fabColor: Color = PrimaryColor,
     fabSize: Dp = 64.dp,
     fabIconSize: Dp = 32.dp,
     cardTopCornerSize: Dp = 24.dp,
@@ -39,7 +41,7 @@ fun BottomBar(
                 .fillMaxWidth()
                 .height(barHeight)
                 .align(Alignment.BottomCenter),
-            colors = CardDefaults.cardColors(containerColor = Color.White),
+            colors = CardDefaults.cardColors(containerColor = BackgroundColor),  // Set background to BackgroundColor
             elevation = CardDefaults.cardElevation(defaultElevation = cardElevation),
             shape = RoundedCornerShape(
                 topStart = cardTopCornerSize,

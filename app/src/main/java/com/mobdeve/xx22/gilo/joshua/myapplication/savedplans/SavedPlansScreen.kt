@@ -1,4 +1,4 @@
-package com.mobdeve.xx22.gilo.joshua.myapplication.savedplans
+package com.mobdeve.xx22.gilo.joshua.myapplication.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,7 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 
 @Composable
-fun MyPlansScreen(
+fun SavedPlansScreen(
     modifier: Modifier = Modifier,
     onProfileClick: () -> Unit,
     onCourseClick: () -> Unit
@@ -37,7 +37,7 @@ fun MyPlansScreen(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "My Plans",
+                text = "Saved Plans",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(start = 16.dp)
@@ -87,14 +87,45 @@ fun MyPlansScreen(
                     verticalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = "MOBDEVE",
+                        text = "Introduction to Android Development",
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Start
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Introduction to Android Development",
+                        text = "A custom course which aims to teach users Android Development.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Start
+                    )
+                }
+            }
+            ElevatedCard(
+                elevation = CardDefaults.cardElevation(
+                    defaultElevation = 6.dp
+                ),
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(0.9f)
+                    .height(100.dp)
+                    .clickable { onCourseClick() }
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "Kotlin Development",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = TextAlign.Start
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "An Advance Android Development Course which focuses on Kotlin",
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Start
@@ -107,8 +138,8 @@ fun MyPlansScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewMyPlansScreen() {
-    MyPlansScreen(
+fun PreviewSavedPlansScreen() {
+    SavedPlansScreen(
         onProfileClick = {},
         onCourseClick = {}
     )

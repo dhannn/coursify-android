@@ -22,8 +22,7 @@ fun ProfileScreen(
 ) {
     Column(
         modifier = modifier
-            .fillMaxSize()
-            .background(Color(0xFFF8F9FA)),
+            .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
@@ -55,7 +54,7 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(50.dp))
 
         Button(
-            onClick = { /* TODO: Handle delete account */ },
+            onClick = { },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 32.dp)

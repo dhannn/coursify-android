@@ -23,7 +23,7 @@ fun GeneratingScreen(
     navController: NavController
 ) {
     LaunchedEffect(Unit) {
-        delay(2000) // Simulate generation
+        delay(2000)
         navController.navigate(Screen.CourseDetail.route) {
             popUpTo(Screen.NewLearningPlan.route) { inclusive = true }
         }

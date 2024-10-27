@@ -27,7 +27,7 @@ fun CourseDetailScreen(
             .background(Color.White)
             .padding(30.dp)
     ) {
-        // Top Bar
+
         TopAppBar(
             title = { },
             navigationIcon = {
@@ -41,14 +41,14 @@ fun CourseDetailScreen(
             },
             actions = {
                 Row {
-                    IconButton(onClick = { /* TODO: Handle refresh */ }) {
+                    IconButton(onClick = {  }) {
                         Icon(
                             imageVector = Icons.Default.Refresh,
                             contentDescription = "Refresh",
                             tint = Color.Black
                         )
                     }
-                    IconButton(onClick = { /* TODO: Handle bookmark */ }) {
+                    IconButton(onClick = {  }) {
                         Icon(
                             imageVector = Icons.Default.BookmarkBorder,
                             contentDescription = "Bookmark",
@@ -62,14 +62,13 @@ fun CourseDetailScreen(
             )
         )
 
-        // Content
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 16.dp)
         ) {
             item {
-                // Title
+
                 Text(
                     text = "Introduction to\nAndroid Development",
                     fontSize = 28.sp,
@@ -78,7 +77,6 @@ fun CourseDetailScreen(
                     modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
                 )
 
-                // Description
                 Text(
                     text = "This course covers Android development basics using Java or Kotlin, guiding learners to build a functional app.",
                     fontSize = 16.sp,
@@ -87,7 +85,6 @@ fun CourseDetailScreen(
                     modifier = Modifier.padding(bottom = 32.dp)
                 )
 
-                // Week 1
                 Text(
                     text = "Week 1",
                     fontSize = 24.sp,
@@ -95,7 +92,6 @@ fun CourseDetailScreen(
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                // Main Topic
                 Text(
                     text = "Main Topic: Android Studio & Basics of Android Development",
                     fontSize = 16.sp,
@@ -103,7 +99,6 @@ fun CourseDetailScreen(
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
-                // Subtopics
                 Text(
                     text = "Subtopics:",
                     fontSize = 16.sp,
@@ -116,7 +111,6 @@ fun CourseDetailScreen(
                     Text("• Java/Kotlin programming review")
                 }
 
-                // Tasks
                 Text(
                     text = "Tasks",
                     fontSize = 16.sp,
@@ -130,7 +124,6 @@ fun CourseDetailScreen(
                     Text("• Watch an introductory video on Android Studio navigation.")
                 }
 
-                // Week 2
                 Text(
                     text = "Week 2",
                     fontSize = 24.sp,
@@ -138,7 +131,6 @@ fun CourseDetailScreen(
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                // Main Topic
                 Text(
                     text = "Main Topic: Activity Lifecycle and UI Components",
                     fontSize = 16.sp,
@@ -146,7 +138,6 @@ fun CourseDetailScreen(
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
-                // Subtopics
                 Text(
                     text = "Subtopics:",
                     fontSize = 16.sp,
@@ -159,7 +150,6 @@ fun CourseDetailScreen(
                     Text("• Layouts and Views")
                 }
 
-                // Tasks
                 Text(
                     text = "Tasks",
                     fontSize = 16.sp,

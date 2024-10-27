@@ -12,8 +12,7 @@ class OnboardingUtils(private val context: Context) {
     fun setOnboardingCompleted() {
         context.getSharedPreferences("onboarding", Context.MODE_PRIVATE)
             .edit()
-            .putBoolean("completed", false)
-            // .putBoolean("completed", true) // once finished change.
+            .putBoolean("completed", true)
             .apply()
     }
 }

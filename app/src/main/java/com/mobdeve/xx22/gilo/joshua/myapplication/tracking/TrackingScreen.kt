@@ -36,6 +36,57 @@ data class TaskItem(
     val isCompleted: Boolean
 )
 
+@Composable
+fun ModuleSection(module: Module) {
+    var isExpanded by remember { mutableStateOf(false) }
+    val rotationState by animateFloatAsState(
+        targetValue = if (isExpanded) 180f else 0f,
+        label = "arrow_rotation"
+    )
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = Color.White
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 2.dp
+        )
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { isExpanded = !isExpanded }
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = module.title,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Medium
+                    )
+                )
+                Icon(
+                    Icons.Filled.KeyboardArrowDown,
+                    contentDescription = "Expand/Collapse Module",
+                    modifier = Modifier.rotate(rotationState)
+                )
+            }
+
+            if (isExpanded) {
+                module.tasks.forEach { task ->
+                    TaskRow(task)
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TrackingScreen(
@@ -174,57 +225,6 @@ fun TrackingScreen(
                         ModuleSection(plan.modules[moduleIndex])
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-fun ModuleSection(module: Module) {
-    var isExpanded by remember { mutableStateOf(false) }
-    val rotationState by animateFloatAsState(
-        targetValue = if (isExpanded) 180f else 0f,
-        label = "arrow_rotation"
-    )
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 2.dp
-        )
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { isExpanded = !isExpanded }
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = module.title,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Medium
-                    )
-                )
-                Icon(
-                    Icons.Filled.KeyboardArrowDown,
-                    contentDescription = "Expand/Collapse Module",
-                    modifier = Modifier.rotate(rotationState)
-                )
-            }
-
-            if (isExpanded) {
-                module.tasks.forEach { task ->
-                    TaskRow(task)
-                }
-                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }
