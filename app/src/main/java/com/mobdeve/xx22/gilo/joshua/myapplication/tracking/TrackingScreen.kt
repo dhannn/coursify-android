@@ -85,20 +85,25 @@ fun TrackingScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFFF8F9FA))
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(start = 16.dp, top = 50.dp, end = 10.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "Track Learning",
-                style = MaterialTheme.typography.headlineMedium
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(start = 16.dp)
             )
-            IconButton(onClick = onProfileClick) {
+            IconButton(
+                onClick = onProfileClick,
+                modifier = Modifier.padding(end = 25.dp)
+            ) {
                 Box(
                     modifier = Modifier
                         .size(40.dp)
@@ -108,8 +113,9 @@ fun TrackingScreen(
                 ) {
                     Icon(
                         Icons.Filled.Person,
-                        contentDescription = "Profile",
-                        tint = Color.DarkGray
+                        contentDescription = "Person",
+                        tint = MaterialTheme.colorScheme.onBackground,
+                        modifier = Modifier.size(24.dp)
                     )
                 }
             }
@@ -118,7 +124,7 @@ fun TrackingScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp)
+                .padding(16.dp)
         ) {
             ExposedDropdownMenuBox(
                 expanded = isDropdownExpanded,
@@ -159,7 +165,6 @@ fun TrackingScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Modules list
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -194,7 +199,6 @@ fun ModuleSection(module: Module) {
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            // Module Header
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -216,7 +220,6 @@ fun ModuleSection(module: Module) {
                 )
             }
 
-            // Tasks
             if (isExpanded) {
                 module.tasks.forEach { task ->
                     TaskRow(task)
