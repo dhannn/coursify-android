@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.mobdeve.xx22.gilo.joshua.myapplication"
+    namespace = "com.mobdeve.xx22.kapefueled.mobdevegods.coursify"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.mobdeve.xx22.gilo.joshua.myapplication"
+        applicationId = "com.mobdeve.xx22.kapefueled.mobdevegods.coursify"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
