@@ -13,33 +13,49 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.R
-import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.ui.theme.PrimaryColor
-import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.ui.theme.SecondaryColor
-import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.ui.theme.BackgroundColor
-import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.ui.theme.AccentColor1
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.ui.theme.*
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.firebase.FirebaseResult
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.viewmodel.AuthViewModel
 
 @Composable
 fun LoginScreen(
-    onLoginClick: (String, String) -> Unit,
-    onCreateAccountClick: () -> Unit
+    onLoginSuccess: () -> Unit,
+    onCreateAccountClick: () -> Unit,
+    authViewModel: AuthViewModel = viewModel()
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var showError by remember { mutableStateOf<String?>(null) }
+
+    // Collect auth state
+    val authState by authViewModel.authState.collectAsState()
+
+    // Handle auth state changes
+    LaunchedEffect(authState) {
+        when (authState) {
+            is FirebaseResult.Success -> {
+                onLoginSuccess()
+            }
+            is FirebaseResult.Error -> {
+                showError = (authState as FirebaseResult.Error).exception.message
+            }
+            else -> {}
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -58,6 +74,7 @@ fun LoginScreen(
                 contentDescription = "logo",
                 modifier = Modifier.size(217.dp)
             )
+
             Text(
                 text = "Welcome Back!",
                 fontSize = 30.sp,
@@ -66,11 +83,24 @@ fun LoginScreen(
                     .width(217.dp)
                     .height(50.dp)
             )
+
             Spacer(modifier = Modifier.height(16.dp))
+
+            // Show error if exists
+            showError?.let { error ->
+                Text(
+                    text = error,
+                    color = Color.Red,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+            }
 
             TextField(
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = {
+                    email = it
+                    showError = null
+                },
                 label = { Text("Email") },
                 modifier = Modifier
                     .width(304.dp)
@@ -78,7 +108,7 @@ fun LoginScreen(
                     .scale(scaleY = 0.9F, scaleX = 1F),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 shape = RoundedCornerShape(13.dp),
-                leadingIcon = { Icon(Icons.Filled.Person, contentDescription = "E-mail") },
+                leadingIcon = { Icon(Icons.Filled.Person, contentDescription = "Email") },
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = SecondaryColor,
                     unfocusedContainerColor = SecondaryColor,
@@ -94,7 +124,10 @@ fun LoginScreen(
 
             TextField(
                 value = password,
-                onValueChange = { password = it },
+                onValueChange = {
+                    password = it
+                    showError = null
+                },
                 label = { Text("Password") },
                 modifier = Modifier
                     .width(304.dp)
@@ -137,14 +170,28 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             Button(
-                onClick = { onLoginClick(email, password) },
+                onClick = {
+                    if (email.isNotBlank() && password.isNotBlank()) {
+                        authViewModel.signIn(email, password)
+                    } else {
+                        showError = "Please fill in all fields"
+                    }
+                },
                 modifier = Modifier
                     .width(304.dp)
                     .height(43.3.dp),
                 shape = RoundedCornerShape(13.dp),
-                colors = ButtonDefaults.buttonColors(PrimaryColor)
+                colors = ButtonDefaults.buttonColors(PrimaryColor),
+                enabled = authState !is FirebaseResult.Loading
             ) {
-                Text("Login", color = Color.White)
+                if (authState is FirebaseResult.Loading) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                } else {
+                    Text("Login", color = Color.White)
+                }
             }
         }
     }
@@ -155,8 +202,8 @@ fun LoginScreen(
 fun LoginScreenPreview() {
     MaterialTheme {
         LoginScreen(
-            onLoginClick = { _, _ ->},
-            onCreateAccountClick = { }
+            onLoginSuccess = {},
+            onCreateAccountClick = {}
         )
     }
 }

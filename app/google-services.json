@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "929854082169",
+    "project_id": "mobdeve-gods",
+    "storage_bucket": "mobdeve-gods.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:929854082169:android:a709e5cc15097dbd4f58a8",
+        "android_client_info": {
+          "package_name": "com.mobdeve.xx22.kapefueled.mobdevegods.coursify"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCkYrFRCjQDQkMw8_z94BuPiSLoGGcdNGM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

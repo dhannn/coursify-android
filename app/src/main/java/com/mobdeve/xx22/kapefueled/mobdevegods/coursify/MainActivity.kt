@@ -1,5 +1,6 @@
 package com.mobdeve.xx22.kapefueled.mobdevegods.coursify
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -7,12 +8,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.components.MainScaffold
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.firebase.FirebaseManager
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.firebase.LearningPlanRepository
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.service.ChatGPTService
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.learningplan.CourseDetailScreen
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.learningplan.GeneratingScreen
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.learningplan.NewLearningPlanScreen
@@ -25,7 +37,10 @@ import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.home.HomeScreen
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.home.SavedPlansScreen
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.tracking.TrackingScreen
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.ui.theme.MyApplicationTheme
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.utils.PreferencesManager
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.utils.navigateToBottomBarRoute
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.viewmodel.AuthViewModel
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.viewmodel.NewLearningPlanViewModel
 
 sealed class Screen(val route: String) {
     object Onboarding : Screen("onboarding")
@@ -36,8 +51,28 @@ sealed class Screen(val route: String) {
     object Tracking : Screen("tracking")
     object Profile : Screen("profile")
     object NewLearningPlan : Screen("new_learning_plan")
-    object Generating : Screen("generating")
-    object CourseDetail : Screen("course_detail")
+    object CourseDetail : Screen("course_detail/{planId}") {
+        fun createRoute(planId: String) = "course_detail/$planId"
+    }
+    object Generating : Screen("generating/{planId}") {
+        fun createRoute(planId: String) = "generating/$planId"
+    }
+}
+
+private class NewLearningPlanViewModelFactory(
+    private val context: Context
+) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(NewLearningPlanViewModel::class.java)) {
+            val preferencesManager = PreferencesManager(context)
+            val apiKey = preferencesManager.getOpenAIKey() ?: throw IllegalStateException("API key not found")
+            val chatGPTService = ChatGPTService(apiKey)
+            val repository = LearningPlanRepository(chatGPTService)
+            return NewLearningPlanViewModel(chatGPTService, repository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
 }
 
 class MainActivity : ComponentActivity() {
@@ -45,6 +80,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        FirebaseManager.initialize(this)
+
         setContent {
             MyApplicationTheme {
                 Surface(
@@ -52,17 +90,23 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
+                    val authViewModel: AuthViewModel = viewModel()
+                    val authState by authViewModel.authState.collectAsState()
 
-                    val startDestination = if (onboardingUtils.isOnboardingCompleted()) {
+                    val startDestination = if (!onboardingUtils.isOnboardingCompleted()) {
+                        Screen.Onboarding.route
+                    } else if (!FirebaseManager.isUserSignedIn) {
                         Screen.Login.route
                     } else {
-                        Screen.Onboarding.route
+                        Screen.Home.route
                     }
 
                     AppNavigation(
                         navController = navController,
                         startDestination = startDestination,
-                        onboardingUtils = onboardingUtils
+                        onboardingUtils = onboardingUtils,
+                        authViewModel = authViewModel,
+                        context = this
                     )
                 }
             }
@@ -74,8 +118,14 @@ class MainActivity : ComponentActivity() {
 fun AppNavigation(
     navController: NavHostController,
     startDestination: String,
-    onboardingUtils: OnboardingUtils
+    onboardingUtils: OnboardingUtils,
+    authViewModel: AuthViewModel,
+    context: Context  // Add context parameter
 ) {
+    val newLearningPlanViewModelFactory = remember {
+        NewLearningPlanViewModelFactory(context)
+    }
+
     MainScaffold(navController = navController) { paddingModifier ->
         NavHost(
             navController = navController,
@@ -93,7 +143,7 @@ fun AppNavigation(
 
             composable(Screen.Login.route) {
                 LoginScreen(
-                    onLoginClick = { email, password ->
+                    onLoginSuccess = {
                         navController.navigate(Screen.Home.route) {
                             popUpTo(Screen.Login.route) { inclusive = true }
                         }
@@ -106,8 +156,13 @@ fun AppNavigation(
 
             composable(Screen.Signup.route) {
                 SignupScreen(
-                    onSignupComplete = { email, password ->
-                        navController.navigate(Screen.Login.route)
+                    onSignupSuccess = {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.Login.route) { inclusive = true }
+                        }
+                    },
+                    onBackToLogin = {
+                        navController.navigateUp()
                     }
                 )
             }
@@ -118,8 +173,8 @@ fun AppNavigation(
                     onProfileClick = {
                         navController.navigateToBottomBarRoute(Screen.Profile.route)
                     },
-                    onCourseClick = {
-                        navController.navigate(Screen.CourseDetail.route)
+                    onCourseClick = {  // Remove the planId parameter if HomeScreen doesn't use it
+                        navController.navigate(Screen.CourseDetail.createRoute("default-id"))  // Or handle this differently
                     }
                 )
             }
@@ -130,8 +185,8 @@ fun AppNavigation(
                     onProfileClick = {
                         navController.navigateToBottomBarRoute(Screen.Profile.route)
                     },
-                    onCourseClick = {
-                        navController.navigate(Screen.CourseDetail.route)
+                    onCourseClick = {  // Remove the planId parameter if SavedPlansScreen doesn't use it
+                        navController.navigate(Screen.CourseDetail.createRoute("default-id"))  // Or handle this differently
                     }
                 )
             }
@@ -149,6 +204,7 @@ fun AppNavigation(
                 ProfileScreen(
                     modifier = paddingModifier,
                     onLogout = {
+                        authViewModel.signOut()
                         navController.navigate(Screen.Login.route) {
                             popUpTo(Screen.Home.route) { inclusive = true }
                         }
@@ -157,9 +213,13 @@ fun AppNavigation(
             }
 
             composable(Screen.NewLearningPlan.route) {
+                val viewModel: NewLearningPlanViewModel = viewModel(factory = newLearningPlanViewModelFactory)
                 NewLearningPlanScreen(
-                    onCoursify = {
-                        navController.navigate(Screen.Generating.route)
+                    navController = navController,
+                    onCoursify = { planId ->
+                        navController.navigate(Screen.Generating.createRoute(planId)) {
+                            popUpTo(Screen.NewLearningPlan.route) { inclusive = true }
+                        }
                     },
                     onCancel = {
                         navController.popBackStack()
@@ -167,12 +227,24 @@ fun AppNavigation(
                 )
             }
 
-            composable(Screen.Generating.route) {
-                GeneratingScreen(navController = navController)
+            composable(
+                route = Screen.Generating.route,
+                arguments = listOf(navArgument("planId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val planId = backStackEntry.arguments?.getString("planId") ?: return@composable
+                GeneratingScreen(
+                    navController = navController,
+                    planId = planId
+                )
             }
 
-            composable(Screen.CourseDetail.route) {
+            composable(
+                route = Screen.CourseDetail.route,
+                arguments = listOf(navArgument("planId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val planId = backStackEntry.arguments?.getString("planId") ?: return@composable
                 CourseDetailScreen(
+                    planId = planId,
                     onBackClick = {
                         navController.popBackStack()
                     }

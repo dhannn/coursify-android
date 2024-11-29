@@ -4,22 +4,46 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.viewmodel.AuthViewModel
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.firebase.FirebaseResult
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.firebase.FirebaseManager
 
 @Composable
 fun ProfileScreen(
     modifier: Modifier = Modifier,
-    onLogout: () -> Unit
+    onLogout: () -> Unit,
+    authViewModel: AuthViewModel = viewModel()
 ) {
+    var showDeleteConfirmDialog by remember { mutableStateOf(false) }
+    var showError by remember { mutableStateOf<String?>(null) }
+
+    val authState by authViewModel.authState.collectAsState()
+
+    // Handle auth state changes
+    LaunchedEffect(authState) {
+        when (authState) {
+            is FirebaseResult.Success -> {
+                onLogout()
+            }
+            is FirebaseResult.Error -> {
+                showError = (authState as FirebaseResult.Error).exception.message
+            }
+            else -> {}
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize(),
@@ -46,15 +70,24 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Name",
+            text = FirebaseManager.auth.currentUser?.email ?: "User",
             style = MaterialTheme.typography.headlineSmall,
             color = Color.Black
         )
 
         Spacer(modifier = Modifier.height(50.dp))
 
+        // Show error if exists
+        showError?.let { error ->
+            Text(
+                text = error,
+                color = Color.Red,
+                modifier = Modifier.padding(horizontal = 32.dp, vertical = 8.dp)
+            )
+        }
+
         Button(
-            onClick = { },
+            onClick = { showDeleteConfirmDialog = true },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 32.dp)
@@ -62,7 +95,8 @@ fun ProfileScreen(
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Black
             ),
-            shape = RoundedCornerShape(8.dp)
+            shape = RoundedCornerShape(8.dp),
+            enabled = authState !is FirebaseResult.Loading
         ) {
             Text(
                 text = "Delete Account",
@@ -74,7 +108,7 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = onLogout,
+            onClick = { authViewModel.signOut() },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 32.dp)
@@ -82,14 +116,45 @@ fun ProfileScreen(
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color.Black
             ),
-            shape = RoundedCornerShape(8.dp)
+            shape = RoundedCornerShape(8.dp),
+            enabled = authState !is FirebaseResult.Loading
         ) {
-            Text(
-                text = "Logout",
-                style = MaterialTheme.typography.bodyLarge,
-                color = Color.White
-            )
+            if (authState is FirebaseResult.Loading) {
+                CircularProgressIndicator(
+                    color = Color.White,
+                    modifier = Modifier.size(24.dp)
+                )
+            } else {
+                Text(
+                    text = "Logout",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = Color.White
+                )
+            }
         }
+    }
+
+    if (showDeleteConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirmDialog = false },
+            title = { Text("Delete Account") },
+            text = { Text("Are you sure you want to delete your account? This action cannot be undone.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteConfirmDialog = false
+                        authViewModel.deleteAccount()
+                    }
+                ) {
+                    Text("Delete", color = Color.Red)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirmDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
 
@@ -97,6 +162,8 @@ fun ProfileScreen(
 @Composable
 fun PreviewProfileScreen() {
     MaterialTheme {
-        ProfileScreen{}
+        ProfileScreen(
+            onLogout = {}
+        )
     }
 }

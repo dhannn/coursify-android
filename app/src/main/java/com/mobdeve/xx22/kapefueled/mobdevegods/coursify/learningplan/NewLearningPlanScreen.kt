@@ -1,5 +1,6 @@
 package com.mobdeve.xx22.kapefueled.mobdevegods.coursify.learningplan
 
+import android.content.Context
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -14,17 +15,49 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.firebase.FirebaseResult
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.viewmodel.NewLearningPlanViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.Screen
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.firebase.LearningPlanRepository
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.service.ChatGPTService
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.utils.PreferencesManager
+
+class NewLearningPlanViewModelFactory(
+    private val context: Context
+) : ViewModelProvider.Factory {
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(NewLearningPlanViewModel::class.java)) {
+            val preferencesManager = PreferencesManager(context)
+            val apiKey = preferencesManager.getOpenAIKey() ?: PreferencesManager.KEY_OPENAI_API
+            val chatGPTService = ChatGPTService(apiKey)
+            val repository = LearningPlanRepository(chatGPTService)
+            return NewLearningPlanViewModel(chatGPTService, repository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewLearningPlanScreen(
-    onCoursify: () -> Unit,
+    navController: NavHostController,
+    onCoursify: (String) -> Unit,
     onCancel: () -> Unit
 ) {
+    val context = LocalContext.current
+    val viewModel = viewModel<NewLearningPlanViewModel>(
+        factory = remember { NewLearningPlanViewModelFactory(context) }
+    )
+
     var learningGoal by remember { mutableStateOf("") }
     var weeklyCommitment by remember { mutableStateOf(0f) }
     var courseDuration by remember { mutableStateOf(0f) }
@@ -32,18 +65,38 @@ fun NewLearningPlanScreen(
     var learningAbility by remember { mutableStateOf("") }
     var targetAudience by remember { mutableStateOf("") }
     var otherComments by remember { mutableStateOf("") }
+    var showError by remember { mutableStateOf<String?>(null) }
 
     val rotationState by animateFloatAsState(
         targetValue = if (isAdvancedOptionsExpanded) 180f else 0f,
         label = "arrow_rotation"
     )
 
+    val generationState by viewModel.generationState.collectAsState()
+
+    LaunchedEffect(generationState) {
+        when (generationState) {
+            is FirebaseResult.Success -> {
+                val planId = (generationState as FirebaseResult.Success<String>).data
+                onCoursify(planId)
+            }
+            is FirebaseResult.Error -> {
+                showError = (generationState as FirebaseResult.Error).exception.message
+            }
+            is FirebaseResult.Loading -> {
+                // Show loading state
+            }
+            null -> {
+                // Initial state, do nothing
+            }
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFF8F9FA))
     ) {
-
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
@@ -51,7 +104,6 @@ fun NewLearningPlanScreen(
                 .padding(bottom = 140.dp)
         ) {
             item {
-
                 Text(
                     text = "New Learning Plan",
                     fontSize = 24.sp,
@@ -64,9 +116,13 @@ fun NewLearningPlanScreen(
                     fontSize = 16.sp,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
+
                 OutlinedTextField(
                     value = learningGoal,
-                    onValueChange = { learningGoal = it },
+                    onValueChange = {
+                        learningGoal = it
+                        showError = null
+                    },
                     placeholder = {
                         Text(
                             "e.g. prompt engineering, songwriting",
@@ -88,6 +144,14 @@ fun NewLearningPlanScreen(
                     fontSize = 16.sp,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
+
+                Text(
+                    text = "${(weeklyCommitment * 20).toInt()} hours per week",
+                    fontSize = 14.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
                 Slider(
                     value = weeklyCommitment,
                     onValueChange = { weeklyCommitment = it },
@@ -100,10 +164,18 @@ fun NewLearningPlanScreen(
                 )
 
                 Text(
-                    text = "The course is good for...",
+                    text = "The course duration should be...",
                     fontSize = 16.sp,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
+
+                Text(
+                    text = "${(courseDuration * 12).toInt()} weeks",
+                    fontSize = 14.sp,
+                    color = Color.Gray,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
                 Slider(
                     value = courseDuration,
                     onValueChange = { courseDuration = it },
@@ -127,7 +199,6 @@ fun NewLearningPlanScreen(
                     Column(
                         modifier = Modifier.fillMaxWidth()
                     ) {
-
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -153,12 +224,12 @@ fun NewLearningPlanScreen(
                                     .padding(horizontal = 16.dp)
                                     .padding(bottom = 16.dp)
                             ) {
-
                                 Text(
                                     text = "I want to be able to...",
                                     fontSize = 16.sp,
                                     modifier = Modifier.padding(bottom = 8.dp)
                                 )
+
                                 OutlinedTextField(
                                     value = learningAbility,
                                     onValueChange = { learningAbility = it },
@@ -183,6 +254,7 @@ fun NewLearningPlanScreen(
                                     fontSize = 16.sp,
                                     modifier = Modifier.padding(bottom = 8.dp)
                                 )
+
                                 OutlinedTextField(
                                     value = targetAudience,
                                     onValueChange = { targetAudience = it },
@@ -207,12 +279,13 @@ fun NewLearningPlanScreen(
                                     fontSize = 16.sp,
                                     modifier = Modifier.padding(bottom = 8.dp)
                                 )
+
                                 OutlinedTextField(
                                     value = otherComments,
                                     onValueChange = { otherComments = it },
                                     placeholder = {
                                         Text(
-                                            "Other Comments",
+                                            "Any other requirements or preferences",
                                             color = Color.Gray
                                         )
                                     },
@@ -232,6 +305,7 @@ fun NewLearningPlanScreen(
             }
         }
 
+        // Bottom Buttons
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -240,8 +314,29 @@ fun NewLearningPlanScreen(
                 .padding(horizontal = 30.dp)
                 .padding(bottom = 24.dp)
         ) {
+            if (showError != null) {
+                Text(
+                    text = showError!!,
+                    color = Color.Red,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            }
+
             Button(
-                onClick = onCoursify,
+                onClick = {
+                    if (learningGoal.isBlank()) {
+                        showError = "Please enter what you want to learn"
+                    } else {
+                        viewModel.generatePlan(
+                            learningGoal = learningGoal,
+                            weeklyCommitment = weeklyCommitment,
+                            courseDuration = courseDuration,
+                            learningAbility = learningAbility,
+                            targetAudience = targetAudience,
+                            otherComments = otherComments
+                        )
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
@@ -250,7 +345,7 @@ fun NewLearningPlanScreen(
                 ),
                 shape = RoundedCornerShape(8.dp)
             ) {
-                Text("Coursify!")
+                Text("Coursify!", color = Color.White)
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -263,7 +358,8 @@ fun NewLearningPlanScreen(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.LightGray
                 ),
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
+                enabled = generationState !is FirebaseResult.Loading
             ) {
                 Text(
                     "Cancel",
@@ -271,16 +367,5 @@ fun NewLearningPlanScreen(
                 )
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewNewLearningPlanScreen() {
-    MaterialTheme {
-        NewLearningPlanScreen(
-            onCoursify = {},
-            onCancel = {}
-        )
     }
 }

@@ -5,29 +5,45 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.firebase.FirebaseResult
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.viewmodel.LearningPlanViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.models.LearningPlan
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CourseDetailScreen(
-    onBackClick: () -> Unit
+    planId: String,
+    onBackClick: () -> Unit,
+    viewModel: LearningPlanViewModel = viewModel()
 ) {
+    var showError by remember { mutableStateOf<String?>(null) }
+    val planState by viewModel.currentPlan.collectAsState()
+
+    // Load plan when screen is shown
+    LaunchedEffect(planId) {
+        viewModel.loadPlan(planId)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
             .padding(30.dp)
     ) {
-
         TopAppBar(
             title = { },
             navigationIcon = {
@@ -41,19 +57,22 @@ fun CourseDetailScreen(
             },
             actions = {
                 Row {
-                    IconButton(onClick = {  }) {
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            contentDescription = "Refresh",
-                            tint = Color.Black
-                        )
-                    }
-                    IconButton(onClick = {  }) {
-                        Icon(
-                            imageVector = Icons.Default.BookmarkBorder,
-                            contentDescription = "Bookmark",
-                            tint = Color.Black
-                        )
+                    // Only show actions when plan is loaded
+                    if (planState is FirebaseResult.Success) {
+                        val plan = (planState as FirebaseResult.Success<LearningPlan>).data
+                        IconButton(
+                            onClick = { viewModel.toggleBookmark(planId) }
+                        ) {
+                            Icon(
+                                imageVector = if (plan.isBookmarked)
+                                    Icons.Default.Bookmark
+                                else Icons.Default.BookmarkBorder,
+                                contentDescription = if (plan.isBookmarked)
+                                    "Remove Bookmark"
+                                else "Add Bookmark",
+                                tint = Color.Black
+                            )
+                        }
                     }
                 }
             },
@@ -62,103 +81,232 @@ fun CourseDetailScreen(
             )
         )
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp)
-        ) {
-            item {
+        when (planState) {
+            is FirebaseResult.Loading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = Color.Black)
+                }
+            }
 
-                Text(
-                    text = "Introduction to\nAndroid Development",
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
-                    lineHeight = 34.sp,
-                    modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
-                )
+            is FirebaseResult.Success -> {
+                val plan = (planState as FirebaseResult.Success<LearningPlan>).data
 
-                Text(
-                    text = "This course covers Android development basics using Java or Kotlin, guiding learners to build a functional app.",
-                    fontSize = 16.sp,
-                    color = Color.Gray,
-                    lineHeight = 24.sp,
-                    modifier = Modifier.padding(bottom = 32.dp)
-                )
-
-                Text(
-                    text = "Week 1",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-
-                Text(
-                    text = "Main Topic: Android Studio & Basics of Android Development",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-
-                Text(
-                    text = "Subtopics:",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-
-                Column(modifier = Modifier.padding(start = 16.dp, bottom = 8.dp)) {
-                    Text("• Installing and configuring Android Studio")
-                    Text("• Java/Kotlin programming review")
+                // Check if plan is still generating
+                if (plan.status == "pending") {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            CircularProgressIndicator(color = Color.Black)
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "Generating your learning plan...",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
+                            Button(
+                                onClick = onBackClick,
+                                modifier = Modifier
+                                    .padding(top = 16.dp)
+                                    .width(200.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+                            ) {
+                                Text("Go Back", color = Color.White)
+                            }
+                        }
+                    }
+                    return
                 }
 
-                Text(
-                    text = "Tasks",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp)
+                ) {
+                    item {
+                        Text(
+                            text = plan.title,
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.Bold,
+                            lineHeight = 34.sp,
+                            modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
+                        )
 
-                Column(modifier = Modifier.padding(start = 16.dp, bottom = 24.dp)) {
-                    Text("• Set up Android Studio and create a simple project.")
-                    Text("• Review Java/Kotlin basics.")
-                    Text("• Watch an introductory video on Android Studio navigation.")
+                        Text(
+                            text = plan.learningGoal,
+                            fontSize = 16.sp,
+                            color = Color.Gray,
+                            lineHeight = 24.sp,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+
+                        // Show commitment info
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 24.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = Color(0xFFF8F9FA)
+                            )
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(16.dp)
+                            ) {
+                                Text(
+                                    text = "Course Details",
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(bottom = 8.dp)
+                                )
+                                Text("Weekly Commitment: ${(plan.weeklyCommitment * 10).toInt()} hours")
+                                Text("Duration: ${(plan.courseDuration * 12).toInt()} weeks")
+                                if (plan.learningAbility.isNotBlank()) {
+                                    Text("Goal: ${plan.learningAbility}")
+                                }
+                            }
+                        }
+
+                        // Display weeks
+                        plan.weeks.forEach { week ->
+                            Text(
+                                text = "Week ${week.weekNumber}",
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(bottom = 16.dp)
+                            )
+
+                            Text(
+                                text = "Main Topic: ${week.mainTopic}",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
+
+                            if (week.subtopics.isNotEmpty()) {
+                                Text(
+                                    text = "Subtopics:",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    modifier = Modifier.padding(bottom = 4.dp)
+                                )
+
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 16.dp),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = Color(0xFFF8F9FA)
+                                    )
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(16.dp)
+                                    ) {
+                                        week.subtopics.forEach { subtopic ->
+                                            Text(
+                                                text = "• $subtopic",
+                                                modifier = Modifier.padding(bottom = 4.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (week.tasks.isNotEmpty()) {
+                                Text(
+                                    text = "Tasks:",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    modifier = Modifier.padding(bottom = 4.dp)
+                                )
+
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 24.dp),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = Color(0xFFF8F9FA)
+                                    )
+                                ) {
+                                    Column(
+                                        modifier = Modifier.padding(16.dp)
+                                    ) {
+                                        week.tasks.forEach { task ->
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                modifier = Modifier.padding(vertical = 4.dp)
+                                            ) {
+                                                Checkbox(
+                                                    checked = task.isCompleted,
+                                                    onCheckedChange = { isChecked ->
+                                                        viewModel.updateTaskCompletion(
+                                                            planId,
+                                                            week.weekNumber,
+                                                            task,
+                                                            isChecked
+                                                        )
+                                                    },
+                                                    colors = CheckboxDefaults.colors(
+                                                        checkedColor = Color.Black,
+                                                        uncheckedColor = Color.Gray
+                                                    )
+                                                )
+                                                Text(
+                                                    text = task.description,
+                                                    style = if (task.isCompleted) {
+                                                        MaterialTheme.typography.bodyMedium.copy(
+                                                            color = Color.Gray,
+                                                            textDecoration = TextDecoration.LineThrough
+                                                        )
+                                                    } else {
+                                                        MaterialTheme.typography.bodyMedium
+                                                    }
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
+            }
 
-                Text(
-                    text = "Week 2",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-
-                Text(
-                    text = "Main Topic: Activity Lifecycle and UI Components",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-
-                Text(
-                    text = "Subtopics:",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-
-                Column(modifier = Modifier.padding(start = 16.dp, bottom = 8.dp)) {
-                    Text("• Activity lifecycle overview")
-                    Text("• Layouts and Views")
+            is FirebaseResult.Error -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = (planState as FirebaseResult.Error).exception.message
+                                ?: "Error loading course",
+                            color = Color.Red,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+                        Button(
+                            onClick = onBackClick,
+                            modifier = Modifier.width(200.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+                        ) {
+                            Text("Go Back", color = Color.White)
+                        }
+                    }
                 }
+            }
 
-                Text(
-                    text = "Tasks",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-
-                Column(modifier = Modifier.padding(start = 16.dp, bottom = 24.dp)) {
-                    Text("• Create a simple app with TextView and Button.")
+            null -> {
+                // Initial state, show loading
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = Color.Black)
                 }
             }
         }
@@ -169,6 +317,9 @@ fun CourseDetailScreen(
 @Composable
 fun PreviewCourseDetailScreen() {
     MaterialTheme {
-        CourseDetailScreen{}
+        CourseDetailScreen(
+            planId = "preview-plan-id",
+            onBackClick = {}
+        )
     }
 }
