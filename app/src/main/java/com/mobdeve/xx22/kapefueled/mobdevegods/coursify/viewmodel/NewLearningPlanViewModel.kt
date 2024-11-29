@@ -34,7 +34,6 @@ class NewLearningPlanViewModel(
         viewModelScope.launch {
             _generationState.value = FirebaseResult.Loading
 
-            // Create initial plan with pending status
             val initialPlan = LearningPlan(
                 title = "Generating...",
                 status = "pending",
@@ -52,7 +51,6 @@ class NewLearningPlanViewModel(
                     val planId = createResult.data
                     _generationState.value = FirebaseResult.Success(planId)
 
-                    // Launch generation in the separate scope
                     generationScope.launch {
                         repository.generateAndSavePlan(
                             LearningPlanRequest(

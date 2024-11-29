@@ -33,7 +33,6 @@ class LearningPlanRepository(
                     else -> throw Exception("Unexpected state in course generation")
                 }
 
-                // Create learning plan structure with generated content
                 val learningPlan = LearningPlan(
                     planId = request.id,
                     title = generatedCourse.courseTitle,
@@ -61,7 +60,6 @@ class LearningPlanRepository(
                     }
                 )
 
-                // Update Firestore document
                 val updates = hashMapOf(
                     "title" to learningPlan.title,
                     "status" to learningPlan.status,

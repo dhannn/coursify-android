@@ -3,103 +3,209 @@ package com.mobdeve.xx22.kapefueled.mobdevegods.coursify.home
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.firebase.FirebaseResult
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.models.LearningPlan
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.viewmodel.LearningPlanViewModel
 
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
     onProfileClick: () -> Unit,
-    onCourseClick: () -> Unit
+    onCourseClick: (String) -> Unit
 ) {
+    val context = LocalContext.current
+    val viewModel: LearningPlanViewModel = viewModel(
+        factory = LearningPlanViewModel.Factory(context)
+    )
+
+    val userPlans by viewModel.userPlans.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadUserPlans()
+    }
+
     Box(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .padding(top = 50.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = "Recently Generated",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 16.dp)
-            )
-            IconButton(
-                onClick = onProfileClick,
-                modifier = Modifier.padding(end = 25.dp)
+        Column {
+            // Header
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(CircleShape)
-                        .background(Color.LightGray),
-                    contentAlignment = Alignment.Center
+                Text(
+                    text = "Generated Plans",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                )
+                IconButton(
+                    onClick = onProfileClick,
                 ) {
-                    Icon(
-                        Icons.Filled.Person,
-                        contentDescription = "Person",
-                        tint = MaterialTheme.colorScheme.onBackground,
-                        modifier = Modifier.size(24.dp)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(Color.LightGray),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Filled.Person,
+                            contentDescription = "Profile",
+                            tint = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+            }
+
+            // Plans List
+            when (val plans = userPlans) {
+                is FirebaseResult.Loading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            CircularProgressIndicator(color = Color.Black)
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "Loading plans...\nThis might take a minute while indexes are created",
+                                textAlign = TextAlign.Center,
+                                color = Color.Gray
+                            )
+                        }
+                    }
+                }
+
+                is FirebaseResult.Success -> {
+                    if (plans.data.isEmpty()) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No learning plans yet.\nTry generating one!",
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = Color.Gray
+                            )
+                        }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            items(plans.data.sortedByDescending { it.createdAt }) { plan ->
+                                PlanCard(
+                                    plan = plan,
+                                    onClick = { onCourseClick(plan.planId) }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                is FirebaseResult.Error -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Error loading plans: ${plans.exception.message}",
+                            color = Color.Red,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                }
+
+                null -> {
+                    // Initial state
                 }
             }
         }
+    }
+}
 
+@Composable
+fun PlanCard(
+    plan: LearningPlan,
+    onClick: () -> Unit
+) {
+    ElevatedCard(
+        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+    ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 70.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+                .fillMaxWidth()
+                .padding(16.dp)
         ) {
-            ElevatedCard(
-                elevation = CardDefaults.cardElevation(
-                    defaultElevation = 6.dp
-                ),
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth(0.9f)
-                    .height(100.dp)
-                    .clickable { onCourseClick() }
+            Text(
+                text = plan.title,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = plan.learningGoal,
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = "MOBDEVE",
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Start
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Introduction to Android Development",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Start
-                    )
-                }
+                Text(
+                    text = "${(plan.weeklyCommitment * 10).toInt()}h/week",
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Text(
+                    text = "${(plan.courseDuration * 12).toInt()} weeks",
+                    style = MaterialTheme.typography.bodySmall
+                )
             }
         }
     }
@@ -108,7 +214,7 @@ fun HomeScreen(
 @Preview(showBackground = true)
 @Composable
 fun PreviewHomeScreen() {
-    SavedPlansScreen (
+    HomeScreen(
         onProfileClick = {},
         onCourseClick = {}
     )

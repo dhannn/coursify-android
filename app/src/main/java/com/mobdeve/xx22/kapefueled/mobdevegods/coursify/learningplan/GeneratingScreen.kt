@@ -29,7 +29,7 @@ fun GeneratingScreen(
 ) {
     val context = LocalContext.current
     val learningPlanViewModel: LearningPlanViewModel = viewModel(
-        factory = remember { LearningPlanViewModel.Factory(context) }
+        factory = LearningPlanViewModel.Factory(context)  // Remove remember {}
     )
 
     var currentStep by remember { mutableStateOf(0) }

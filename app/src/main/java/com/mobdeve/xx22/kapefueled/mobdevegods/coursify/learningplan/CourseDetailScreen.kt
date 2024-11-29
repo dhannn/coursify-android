@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,12 +29,15 @@ import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.models.LearningPlan
 fun CourseDetailScreen(
     planId: String,
     onBackClick: () -> Unit,
-    viewModel: LearningPlanViewModel = viewModel()
 ) {
+    val context = LocalContext.current
+    val viewModel: LearningPlanViewModel = viewModel(
+        factory = LearningPlanViewModel.Factory(context)
+    )
     var showError by remember { mutableStateOf<String?>(null) }
     val planState by viewModel.currentPlan.collectAsState()
 
-    // Load plan when screen is shown
+
     LaunchedEffect(planId) {
         viewModel.loadPlan(planId)
     }
