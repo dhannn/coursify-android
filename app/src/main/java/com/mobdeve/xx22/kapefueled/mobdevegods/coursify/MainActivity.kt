@@ -25,6 +25,7 @@ import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.components.MainScaffold
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.firebase.FirebaseManager
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.firebase.LearningPlanRepository
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.service.ChatGPTService
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.service.ClaudeService
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.learningplan.CourseDetailScreen
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.learningplan.GeneratingScreen
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.learningplan.NewLearningPlanScreen
@@ -68,8 +69,9 @@ private class NewLearningPlanViewModelFactory(
             val preferencesManager = PreferencesManager(context)
             val apiKey = preferencesManager.getOpenAIKey() ?: throw IllegalStateException("API key not found")
             val chatGPTService = ChatGPTService(apiKey)
-            val repository = LearningPlanRepository(chatGPTService)
-            return NewLearningPlanViewModel(chatGPTService, repository) as T
+            val claudeService = ClaudeService(apiKey)
+            val repository = LearningPlanRepository(claudeService, chatGPTService)
+            return NewLearningPlanViewModel(claudeService, chatGPTService, repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

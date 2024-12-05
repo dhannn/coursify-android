@@ -28,7 +28,9 @@ import androidx.navigation.NavHostController
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.Screen
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.firebase.LearningPlanRepository
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.service.ChatGPTService
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.service.ClaudeService
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.utils.PreferencesManager
+import kotlin.math.ceil
 
 class NewLearningPlanViewModelFactory(
     private val context: Context
@@ -39,8 +41,9 @@ class NewLearningPlanViewModelFactory(
             val preferencesManager = PreferencesManager(context)
             val apiKey = preferencesManager.getOpenAIKey() ?: PreferencesManager.KEY_OPENAI_API
             val chatGPTService = ChatGPTService(apiKey)
-            val repository = LearningPlanRepository(chatGPTService)
-            return NewLearningPlanViewModel(chatGPTService, repository) as T
+            val claudeService = ClaudeService(apiKey)
+            val repository = LearningPlanRepository(claudeService, chatGPTService)
+            return NewLearningPlanViewModel(claudeService, chatGPTService, repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

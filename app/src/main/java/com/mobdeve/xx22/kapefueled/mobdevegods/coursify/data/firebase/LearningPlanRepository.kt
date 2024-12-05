@@ -9,12 +9,14 @@ import kotlinx.coroutines.tasks.await
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.models.*
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.service.ClaudeService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.withContext
 
 class LearningPlanRepository(
+    private val claudeService: ClaudeService,
     private val chatGPTService: ChatGPTService,
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 ) {
@@ -27,7 +29,7 @@ class LearningPlanRepository(
                 println("Starting plan generation in repository: ${request.id}")
 
                 // Generate course using ChatGPT
-                val generatedCourse = when (val result = chatGPTService.generateCourse(request)) {
+                val generatedCourse = when (val result = claudeService.generateCourse(request)) {
                     is FirebaseResult.Success -> result.data
                     is FirebaseResult.Error -> return@withContext FirebaseResult.Error(result.exception)
                     else -> throw Exception("Unexpected state in course generation")

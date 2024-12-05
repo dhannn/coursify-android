@@ -1,5 +1,8 @@
 package com.mobdeve.xx22.kapefueled.mobdevegods.coursify
 
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.models.LearningPlanRequest
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.service.ClaudeService
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -11,7 +14,16 @@ import org.junit.Assert.*
  */
 class ExampleUnitTest {
     @Test
-    fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
+    fun test_Claude_connection() = runBlocking {
+        val service = ClaudeService("sk-")
+        val request = LearningPlanRequest(
+            learningGoal = "Prompt Engineering for CS Students",
+            weeklyCommitment = 4f,
+            courseDuration = 8f
+        )
+
+
+        val result = service.generateCourse(request)
+        println(result)
     }
 }

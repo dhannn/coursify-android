@@ -10,6 +10,7 @@ import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.models.Task
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.models.Week
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.firebase.LearningPlanRepository
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.service.ChatGPTService
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.service.ClaudeService
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.utils.PreferencesManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,7 +23,10 @@ class LearningPlanViewModel(
     private val chatGPTService = ChatGPTService(
         preferencesManager.getOpenAIKey() ?: PreferencesManager.KEY_OPENAI_API
     )
-    private val repository = LearningPlanRepository(chatGPTService)
+    private val claudeService = ClaudeService(
+        preferencesManager.getOpenAIKey() ?: PreferencesManager.KEY_OPENAI_API
+    )
+    private val repository = LearningPlanRepository(claudeService, chatGPTService)
 
     // State flows
     private val _planState = MutableStateFlow<FirebaseResult<String>?>(null)

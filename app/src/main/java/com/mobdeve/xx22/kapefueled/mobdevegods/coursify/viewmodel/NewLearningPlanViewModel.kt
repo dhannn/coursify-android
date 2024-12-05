@@ -7,6 +7,7 @@ import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.models.LearningPlan
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.firebase.LearningPlanRepository
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.models.LearningPlan
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.service.ChatGPTService
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.service.ClaudeService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class NewLearningPlanViewModel(
+    private val claudeService: ClaudeService,
     private val chatGPTService: ChatGPTService,
     private val repository: LearningPlanRepository
 ) : ViewModel() {

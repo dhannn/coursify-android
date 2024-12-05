@@ -9,7 +9,7 @@ class PreferencesManager(context: Context) {
     )
 
     companion object {
-        const val KEY_OPENAI_API = "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"
+        const val KEY_OPENAI_API = "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"
     }
     fun saveOpenAIKey(apiKey: String) {
         sharedPreferences.edit()

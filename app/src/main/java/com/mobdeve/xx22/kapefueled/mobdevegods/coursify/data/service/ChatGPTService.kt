@@ -10,6 +10,8 @@ import com.aallam.openai.api.message.MessageRequest
 import com.aallam.openai.api.model.ModelId
 import com.aallam.openai.api.run.RunRequest
 import com.aallam.openai.client.OpenAI
+import com.aallam.openai.client.OpenAIConfig
+import com.aallam.openai.client.OpenAIHost
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.firebase.FirebaseResult
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.models.GeneratedCourse
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.models.LearningPlanRequest
@@ -22,7 +24,13 @@ import kotlinx.serialization.json.*
 import java.util.concurrent.TimeoutException
 
 class ChatGPTService(apiKey: String) {
-    private val client = OpenAI(token = apiKey)
+
+    val configOpenAI = OpenAIConfig(
+        token = apiKey,
+        host = OpenAIHost("https://openrouter.ai/api/v1/")
+    )
+
+    private val client = OpenAI(configOpenAI)
     private val apiScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private val courseSchema = JsonObject(
@@ -148,7 +156,7 @@ class ChatGPTService(apiKey: String) {
                         name = "Course Creation Assistant",
                         instructions = instructions,
                         tools = emptyList(),
-                        model = ModelId("gpt-4o-2024-08-06"),
+                        model = ModelId("claude-3-5-sonnet-20241022"),
                         metadata = emptyMap(),
                         responseFormat = AssistantResponseFormat(
                             type = "json_schema",
