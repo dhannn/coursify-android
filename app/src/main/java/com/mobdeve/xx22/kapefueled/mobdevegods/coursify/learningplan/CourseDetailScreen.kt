@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -82,6 +83,20 @@ fun CourseDetailScreen(
                             )
                         }
                     }
+                }
+                IconButton(
+                    onClick = {
+                        viewModel.regeneratePlan(
+                            planId,
+                            (planState as FirebaseResult.Success<LearningPlan>).data
+                        )
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = "Regenerate Course",
+                        tint = Color.Black
+                    )
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(

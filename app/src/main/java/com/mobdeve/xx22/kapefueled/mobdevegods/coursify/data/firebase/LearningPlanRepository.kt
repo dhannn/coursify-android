@@ -29,7 +29,6 @@ class LearningPlanRepository(
             try {
                 println("Starting plan generation in repository: ${request.id}")
 
-                // Generate course using ChatGPT
                 val generatedCourse = when (val result = claudeService.generateCourse(request)) {
                     is FirebaseResult.Success -> result.data
                     is FirebaseResult.Error -> return@withContext FirebaseResult.Error(result.exception)
@@ -277,6 +276,66 @@ class LearningPlanRepository(
             FirebaseResult.Success(docRef.id)
         } catch (e: Exception) {
             FirebaseResult.Error(e)
+        }
+    }
+
+    suspend fun regeneratePlan(planId: String, plan: LearningPlan): FirebaseResult<String> {
+        return withContext(generationScope.coroutineContext) {
+            try {
+                plansCollection.document(planId).update(
+                    mapOf(
+                        "status" to "pending",
+                        "lastModified" to Timestamp.now()
+                    )
+                ).await()
+
+                val request = LearningPlanRequest(
+                    id = planId,
+                    learningGoal = plan.learningGoal,
+                    weeklyCommitment = plan.weeklyCommitment,
+                    courseDuration = plan.courseDuration,
+                    learningAbility = plan.learningAbility,
+                    targetAudience = plan.targetAudience,
+                    otherComments = plan.otherComments
+                )
+
+                // Generate new course content
+                val generatedCourse = when (val result = claudeService.generateCourse(request)) {
+                    is FirebaseResult.Success -> result.data
+                    is FirebaseResult.Error -> return@withContext FirebaseResult.Error(result.exception)
+                    else -> throw Exception("Unexpected state in course generation")
+                }
+
+                // Update the plan with new content
+                val updates = hashMapOf(
+                    "title" to generatedCourse.courseTitle,
+                    "status" to "active",
+                    "weeks" to generatedCourse.weeks.map { week ->
+                        Week(
+                            weekNumber = week.weekNumber,
+                            title = "Week ${week.weekNumber}",
+                            mainTopic = week.mainTopic,
+                            subtopics = week.subtopics,
+                            tasks = week.tasks.map { taskDescription ->
+                                Task(
+                                    description = taskDescription,
+                                    isCompleted = false,
+                                    completedAt = null
+                                )
+                            }
+                        )
+                    },
+                    "lastModified" to Timestamp.now()
+                )
+
+                plansCollection.document(planId).update(updates).await()
+                return@withContext FirebaseResult.Success(planId)
+
+            } catch (e: Exception) {
+                println("Exception in regeneratePlan: ${e.javaClass.simpleName} - ${e.message}")
+                e.printStackTrace()
+                FirebaseResult.Error(e)
+            }
         }
     }
 }

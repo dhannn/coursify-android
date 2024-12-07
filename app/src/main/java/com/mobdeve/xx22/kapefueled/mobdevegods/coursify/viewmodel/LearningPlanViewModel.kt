@@ -10,6 +10,7 @@ import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.models.LearningPlan
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.models.Task
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.models.Week
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.firebase.LearningPlanRepository
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.models.LearningPlanRequest
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.service.ChatGPTService
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.service.ClaudeService
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.utils.PreferencesManager
@@ -194,5 +195,24 @@ class LearningPlanViewModel(
             throw IllegalArgumentException("Unknown ViewModel class")
         }
     }
-
+    fun regeneratePlan(planId: String, oldPlan: LearningPlan) {
+        viewModelScope.launch {
+            try {
+                _currentPlan.value = FirebaseResult.Loading
+                when (val result = repository.regeneratePlan(planId, oldPlan)) {
+                    is FirebaseResult.Success -> {
+                        loadPlan(planId)
+                        loadUserPlans()
+                    }
+                    is FirebaseResult.Error -> {
+                        _currentPlan.value = FirebaseResult.Error(result.exception)
+                    }
+                    is FirebaseResult.Loading -> {
+                    }
+                }
+            } catch (e: Exception) {
+                _currentPlan.value = FirebaseResult.Error(e)
+            }
+        }
+    }
 }
