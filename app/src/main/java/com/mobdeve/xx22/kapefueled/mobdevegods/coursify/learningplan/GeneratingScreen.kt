@@ -54,6 +54,7 @@ fun GeneratingScreen(
                     currentStep = when {
                         plan.status == "active" -> {
                             // Plan is ready, navigate to detail screen
+                            navController.popBackStack()
                             navController.navigate(Screen.CourseDetail.createRoute(planId)) {
                                 popUpTo(Screen.NewLearningPlan.route) { inclusive = true }
                             }
