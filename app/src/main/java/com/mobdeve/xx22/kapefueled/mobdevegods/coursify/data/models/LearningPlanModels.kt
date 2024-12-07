@@ -14,7 +14,7 @@ data class LearningPlan(
     val weeklyCommitment: Float = 0f,
     val courseDuration: Float = 0f,
     val status: String = "active",
-    val isBookmarked: Boolean = false,
+    val bookmarked: Boolean = false,
 
     val learningAbility: String = "",
     val targetAudience: String = "",

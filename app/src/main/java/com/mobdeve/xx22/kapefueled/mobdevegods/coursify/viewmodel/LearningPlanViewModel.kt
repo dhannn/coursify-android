@@ -98,6 +98,7 @@ class LearningPlanViewModel(
             when (val result = repository.toggleBookmark(planId)) {
                 is FirebaseResult.Success -> {
                     // Refresh current plan and lists
+                    Log.d("toggleBookmark", (currentPlan.value as FirebaseResult.Success<LearningPlan>).data.bookmarked.toString())
                     loadPlan(planId)
                     loadUserPlans()
                     loadBookmarkedPlans()

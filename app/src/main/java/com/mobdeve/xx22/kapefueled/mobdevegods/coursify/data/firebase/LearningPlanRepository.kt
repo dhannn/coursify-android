@@ -121,7 +121,7 @@ class LearningPlanRepository(
 
             docRef.update(
                 mapOf(
-                    "isBookmarked" to !plan.isBookmarked,
+                    "bookmarked" to !plan.bookmarked,
                     "lastModified" to Timestamp.now()
                 )
             ).await()
@@ -217,7 +217,7 @@ class LearningPlanRepository(
             val userId = FirebaseManager.currentUserId ?: throw Exception("User not logged in")
             val snapshot = plansCollection
                 .whereEqualTo("userId", userId)
-                .whereEqualTo("isBookmarked", true)
+                .whereEqualTo("bookmarked", true)
                 .orderBy("createdAt", com.google.firebase.firestore.Query.Direction.DESCENDING)
                 .get()
                 .await()

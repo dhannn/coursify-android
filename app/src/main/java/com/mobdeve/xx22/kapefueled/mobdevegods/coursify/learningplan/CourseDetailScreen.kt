@@ -8,7 +8,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -69,11 +68,12 @@ fun CourseDetailScreen(
                         IconButton(
                             onClick = { viewModel.toggleBookmark(planId) }
                         ) {
+                            Log.d("CourseDetailScreen::Bookmark", plan.bookmarked.toString())
                             Icon(
-                                imageVector = if (plan.isBookmarked)
+                                imageVector = if (plan.bookmarked)
                                     Icons.Default.Bookmark
                                 else Icons.Default.BookmarkBorder,
-                                contentDescription = if (plan.isBookmarked)
+                                contentDescription = if (plan.bookmarked)
                                     "Remove Bookmark"
                                 else "Add Bookmark",
                                 tint = Color.Black
