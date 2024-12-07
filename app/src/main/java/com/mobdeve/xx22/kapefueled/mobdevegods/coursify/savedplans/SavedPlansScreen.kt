@@ -16,6 +16,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.firebase.FirebaseResult
@@ -25,9 +26,11 @@ import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.viewmodel.LearningPlanVi
 fun SavedPlansScreen(
     modifier: Modifier = Modifier,
     onProfileClick: () -> Unit,
-    onCourseClick: (String) -> Unit,
-    viewModel: LearningPlanViewModel = viewModel()
-) {
+    onCourseClick: (String) -> Unit) {
+    val context = LocalContext.current
+    val viewModel: LearningPlanViewModel = viewModel(
+        factory = LearningPlanViewModel.Factory(context)
+    )
     val plans by viewModel.userPlans.collectAsState()
 
     // Load plans when screen is shown

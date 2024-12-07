@@ -183,13 +183,14 @@ fun AppNavigation(
             }
 
             composable(Screen.SavedPlans.route) {
+
                 SavedPlansScreen(
                     modifier = paddingModifier,
                     onProfileClick = {
                         navController.navigateToBottomBarRoute(Screen.Profile.route)
                     },
-                    onCourseClick = {  // Remove the planId parameter if SavedPlansScreen doesn't use it
-                        navController.navigate(Screen.CourseDetail.createRoute("default-id"))  // Or handle this differently
+                    onCourseClick = {  planId ->
+                        navController.navigate(Screen.CourseDetail.createRoute(planId))  // Or handle this differently
                     }
                 )
             }
