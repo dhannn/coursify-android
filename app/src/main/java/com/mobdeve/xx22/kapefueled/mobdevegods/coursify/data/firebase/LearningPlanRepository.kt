@@ -221,7 +221,7 @@ class LearningPlanRepository(
                 .orderBy("createdAt", com.google.firebase.firestore.Query.Direction.DESCENDING)
                 .get()
                 .await()
-
+            Log.d("getBookmarkedPlans", snapshot.documents.toString())
             val plans = snapshot.documents.mapNotNull { it.toObject<LearningPlan>() }
             emit(FirebaseResult.Success(plans))
         } catch (e: Exception) {

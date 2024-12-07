@@ -31,11 +31,11 @@ fun SavedPlansScreen(
     val viewModel: LearningPlanViewModel = viewModel(
         factory = LearningPlanViewModel.Factory(context)
     )
-    val plans by viewModel.userPlans.collectAsState()
+    val plans by viewModel.bookmarkedPlans.collectAsState()
 
     // Load plans when screen is shown
     LaunchedEffect(Unit) {
-        viewModel.loadUserPlans()
+        viewModel.loadBookmarkedPlans()
     }
 
     Box(
