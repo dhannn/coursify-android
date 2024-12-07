@@ -114,6 +114,10 @@ class LearningPlanViewModel(
     fun updateTaskCompletion(planId: String, weekNumber: Int, task: Task, isCompleted: Boolean) {
         viewModelScope.launch {
             when (val result = repository.updateTaskCompletion(planId, weekNumber, task, isCompleted)) {
+                is FirebaseResult.Loading -> {
+                    _currentPlan.value = FirebaseResult.Loading
+                }
+
                 is FirebaseResult.Success -> {
                     _currentPlan.value = FirebaseResult.Success((currentPlan.value as FirebaseResult.Success<LearningPlan>).data)
                 }

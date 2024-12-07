@@ -39,7 +39,6 @@ fun CourseDetailScreen(
     var showError by remember { mutableStateOf<String?>(null) }
     val planState by viewModel.currentPlan.collectAsState()
     val weekState: MutableState<List<Week>> = remember { mutableStateOf(emptyList()) }
-    val tasksState: MutableState<List<Task>> = remember { mutableStateOf(emptyList()) }
 
     LaunchedEffect(planId) {
         Log.d("CourseDetailScreen", "Loading plan: $planId")
