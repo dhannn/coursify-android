@@ -23,6 +23,8 @@ import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.firebase.FirebaseRe
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.viewmodel.LearningPlanViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.models.LearningPlan
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.models.Task
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.models.Week
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,7 +38,8 @@ fun CourseDetailScreen(
     )
     var showError by remember { mutableStateOf<String?>(null) }
     val planState by viewModel.currentPlan.collectAsState()
-
+    val weekState: MutableState<List<Week>> = remember { mutableStateOf(emptyList()) }
+    val tasksState: MutableState<List<Task>> = remember { mutableStateOf(emptyList()) }
 
     LaunchedEffect(planId) {
         Log.d("CourseDetailScreen", "Loading plan: $planId")
@@ -99,6 +102,7 @@ fun CourseDetailScreen(
 
             is FirebaseResult.Success -> {
                 val plan = (planState as FirebaseResult.Success<LearningPlan>).data
+                weekState.value = ((planState as FirebaseResult.Success<LearningPlan>).data.weeks)
 
                 // Check if plan is still generating
                 if (plan.status == "pending") {
@@ -177,7 +181,7 @@ fun CourseDetailScreen(
                         }
 
                         // Display weeks
-                        plan.weeks.forEach { week ->
+                        weekState.value.forEach { week ->
                             Text(
                                 text = "Week ${week.weekNumber}",
                                 fontSize = 24.sp,
@@ -245,8 +249,9 @@ fun CourseDetailScreen(
                                                 verticalAlignment = Alignment.CenterVertically,
                                                 modifier = Modifier.padding(vertical = 4.dp)
                                             ) {
+                                                var checked by remember { mutableStateOf(task.isCompleted) }
                                                 Checkbox(
-                                                    checked = task.isCompleted,
+                                                    checked = checked,
                                                     onCheckedChange = { isChecked ->
                                                         viewModel.updateTaskCompletion(
                                                             planId,
@@ -254,6 +259,7 @@ fun CourseDetailScreen(
                                                             task,
                                                             isChecked
                                                         )
+                                                        checked = isChecked
                                                     },
                                                     colors = CheckboxDefaults.colors(
                                                         checkedColor = Color.Black,

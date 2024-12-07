@@ -115,7 +115,7 @@ class LearningPlanViewModel(
         viewModelScope.launch {
             when (val result = repository.updateTaskCompletion(planId, weekNumber, task, isCompleted)) {
                 is FirebaseResult.Success -> {
-                    loadPlan(planId)
+                    _currentPlan.value = FirebaseResult.Success((currentPlan.value as FirebaseResult.Success<LearningPlan>).data)
                 }
                 is FirebaseResult.Error -> {
                     _currentPlan.value = FirebaseResult.Error(result.exception)

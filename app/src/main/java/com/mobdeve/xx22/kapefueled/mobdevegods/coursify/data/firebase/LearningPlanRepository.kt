@@ -106,7 +106,6 @@ class LearningPlanRepository(
                 document.toObject<LearningPlan>()
             }
 
-            Log.d("getUserPlans", "Plan ID: ${plans.get(0).planId}")
             emit(FirebaseResult.Success(plans))
         } catch (e: Exception) {
             emit(FirebaseResult.Error(e))

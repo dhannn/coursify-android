@@ -33,6 +33,6 @@ data class Week(
 
 data class Task(
     val description: String = "",
-    val isCompleted: Boolean = false,
+    var isCompleted: Boolean = false,
     val completedAt: Timestamp? = null
 )
