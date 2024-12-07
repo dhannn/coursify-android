@@ -1,4 +1,5 @@
 package com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.firebase
+import android.util.Log
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.service.ChatGPTService
 import com.google.firebase.firestore.ktx.toObject
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.data.models.LearningPlan
@@ -81,6 +82,7 @@ class LearningPlanRepository(
         }
     }
     suspend fun getPlan(planId: String): FirebaseResult<LearningPlan> {
+        Log.d("LearningPlanRepository::getPlan", planId)
         return try {
             val doc = plansCollection.document(planId).get().await()
             doc.toObject<LearningPlan>()?.let {
@@ -91,7 +93,7 @@ class LearningPlanRepository(
         }
     }
 
-    suspend fun getUserPlans(): Flow<FirebaseResult<List<LearningPlan>>> = flow {
+    fun getUserPlans(): Flow<FirebaseResult<List<LearningPlan>>> = flow {
         try {
             val userId = FirebaseManager.currentUserId ?: throw Exception("User not logged in")
             val snapshot = plansCollection  // Use plansCollection instead of planCollection
@@ -103,6 +105,8 @@ class LearningPlanRepository(
             val plans = snapshot.documents.mapNotNull { document ->
                 document.toObject<LearningPlan>()
             }
+
+            Log.d("getUserPlans", "Plan ID: ${plans.get(0).planId}")
             emit(FirebaseResult.Success(plans))
         } catch (e: Exception) {
             emit(FirebaseResult.Error(e))

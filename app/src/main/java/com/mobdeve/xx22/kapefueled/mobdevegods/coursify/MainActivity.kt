@@ -2,6 +2,7 @@ package com.mobdeve.xx22.kapefueled.mobdevegods.coursify
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.fillMaxSize
@@ -175,8 +176,8 @@ fun AppNavigation(
                     onProfileClick = {
                         navController.navigateToBottomBarRoute(Screen.Profile.route)
                     },
-                    onCourseClick = {  // Remove the planId parameter if HomeScreen doesn't use it
-                        navController.navigate(Screen.CourseDetail.createRoute("default-id"))  // Or handle this differently
+                    onCourseClick = { planId ->
+                        navController.navigate(Screen.CourseDetail.createRoute(planId))  // Or handle this differently
                     }
                 )
             }
@@ -245,6 +246,7 @@ fun AppNavigation(
                 arguments = listOf(navArgument("planId") { type = NavType.StringType })
             ) { backStackEntry ->
                 val planId = backStackEntry.arguments?.getString("planId") ?: return@composable
+                Log.d("CourseDetail", "Plan ID: $planId")
                 CourseDetailScreen(
                     planId = planId,
                     onBackClick = {

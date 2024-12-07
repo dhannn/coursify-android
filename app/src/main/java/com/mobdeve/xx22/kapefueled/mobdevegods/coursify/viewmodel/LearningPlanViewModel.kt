@@ -1,6 +1,7 @@
 package com.mobdeve.xx22.kapefueled.mobdevegods.coursify.viewmodel
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -70,6 +71,7 @@ class LearningPlanViewModel(
         viewModelScope.launch {
             _currentPlan.value = FirebaseResult.Loading
             _currentPlan.value = repository.getPlan(planId)
+            Log.d("loadPlan", planId)
         }
     }
 
@@ -77,6 +79,8 @@ class LearningPlanViewModel(
         viewModelScope.launch {
             repository.getUserPlans().collect { result ->
                 _userPlans.value = result
+                Log.d("loadUserPlans", result.toString())
+                Log.d("loadUserPlans", _userPlans.value.toString())
             }
         }
     }

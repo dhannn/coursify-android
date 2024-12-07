@@ -1,5 +1,6 @@
 package com.mobdeve.xx22.kapefueled.mobdevegods.coursify.learningplan
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -39,6 +40,7 @@ fun CourseDetailScreen(
 
 
     LaunchedEffect(planId) {
+        Log.d("CourseDetailScreen", "Loading plan: $planId")
         viewModel.loadPlan(planId)
     }
 
