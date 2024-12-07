@@ -1,4 +1,4 @@
-package com.mobdeve.xx22.kapefueled.mobdevegods.coursify.home
+package com.mobdeve.xx22.kapefueled.mobdevegods.coursify.savedplans
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

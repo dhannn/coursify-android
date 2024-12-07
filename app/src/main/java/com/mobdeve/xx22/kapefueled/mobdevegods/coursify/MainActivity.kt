@@ -35,7 +35,7 @@ import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.onboarding.OnboardingScr
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.onboarding.OnboardingUtils
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.profile.ProfileScreen
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.home.HomeScreen
-import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.home.SavedPlansScreen
+import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.savedplans.SavedPlansScreen
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.tracking.TrackingScreen
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.ui.theme.MyApplicationTheme
 import com.mobdeve.xx22.kapefueled.mobdevegods.coursify.utils.PreferencesManager
